@@ -2,6 +2,8 @@ from image_helper import Image, Pixel
 
 
 def average_pixels(pixels):
+    """ Returns a pixel representing the average color of the given pixels. """
+
     reds, greens, blues = [], [], []
 
     for pixel in pixels:
@@ -17,10 +19,15 @@ def average_pixels(pixels):
 
 
 def downscale(image, factor):
-    new_image = Image((image.size.x // factor, image.size.y // factor))
+    """ Downscales an image by a given factor. """
 
-    for x in range(new_image.size.x):
-        for y in range(new_image.size.y):
+    if factor <= 0:
+        raise ValueError('Downscale factor must be a positive integer.')
+
+    new_image = Image((image.size.width // factor, image.size.height // factor))
+
+    for x in range(new_image.size.width):
+        for y in range(new_image.size.height):
             pixels_to_average = []
             for extend_x in range(factor):
                 for extend_y in range(factor):
@@ -32,10 +39,14 @@ def downscale(image, factor):
 
 
 def compress_colors(image, factor):
+    """ Compresses colors in an image by a given factor. If factor > 1, the
+        function will "uncompress" the image.
+    """
+
     new_image = Image(image.size)
 
-    for x in range(new_image.size.x):
-        for y in range(new_image.size.y):
+    for x in range(new_image.size.width):
+        for y in range(new_image.size.height):
             new_image[x][y].r = int(image[x][y].r * factor)
             new_image[x][y].g = int(image[x][y].g * factor)
             new_image[x][y].b = int(image[x][y].b * factor)
@@ -43,22 +54,35 @@ def compress_colors(image, factor):
     return new_image
 
 
-DOWNSCALE_FACTOR = 6
-COMPRESS_COLORS_FACTOR = 16
+# Example code for testing.
+# Assume DS = Downscaled
+#        CC = Compressed Colors
+
+DS_FACTOR = 6
+CC_FACTOR = 32
 
 lesley = Image('lesley.image')
 lesley.show('Uncompressed')
 
-downscaled_lesley = downscale(lesley, DOWNSCALE_FACTOR)
-downscaled_lesley.show('Downscaled', scale=DOWNSCALE_FACTOR)
-downscaled_lesley.save('lesley-downscaled.image')
+ds_lesley = downscale(lesley, DS_FACTOR)
+ds_lesley.show('Downscaled', scale=DS_FACTOR)
+ds_lesley.save('lesley-ds.image')
 
-compressed_colors_lesley = compress_colors(lesley, 1 / COMPRESS_COLORS_FACTOR)
-compressed_colors_lesley.save('lesley-compressed-colors.image')
-uncompressed_colors_lesley = compress_colors(compressed_colors_lesley, COMPRESS_COLORS_FACTOR)
-uncompressed_colors_lesley.show('Compressed Colors')
+cc_lesley = compress_colors(lesley, 1 / CC_FACTOR)
+cc_lesley.save('lesley-cc.image')
+uncc_lesley = compress_colors(cc_lesley, CC_FACTOR)
+uncc_lesley.show('Compressed Colors')
 
-downscaled_and_compressed_lesley = compress_colors(downscale(lesley, DOWNSCALE_FACTOR), 1 / COMPRESS_COLORS_FACTOR)
-downscaled_and_compressed_lesley.save('lesley-downscaled-compressed-colors.image')
-downscaled_and_uncompressed_lesley = compress_colors(downscaled_and_compressed_lesley, COMPRESS_COLORS_FACTOR)
-downscaled_and_uncompressed_lesley.show('Downscaled and Compressed', scale=DOWNSCALE_FACTOR)
+ds_and_compressed_lesley = compress_colors(
+    downscale(lesley, DS_FACTOR),
+    1 / CC_FACTOR
+)
+ds_and_compressed_lesley.save('lesley-ds-cc.image')
+ds_and_uncompressed_lesley = compress_colors(
+    ds_and_compressed_lesley,
+    CC_FACTOR
+)
+ds_and_uncompressed_lesley.show(
+    'Downscaled and Compressed Colors',
+    scale=DS_FACTOR
+)
