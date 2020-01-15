@@ -1,4 +1,4 @@
-# CU Boulder Computer Graphics Group Image Compression Talk
+# CU Boulder Computer Graphics Club Image Compression Talk
 Slides: https://bit.ly/2VJEIch
 
 ## Running the Demo Code
